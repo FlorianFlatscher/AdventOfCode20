@@ -15,7 +15,7 @@ func main() {
 	dayIndex := askForNumber()
 	timeStart := time.Now()
 
-	days := []Days.Day1{Days.Day1{}}
+	days := []Days.IDay{Days.Day1{}, Days.Day2{}}
 	var output string
 	if dayIndex > 0 && dayIndex <= len(days) {
 		output = days[dayIndex-1].Calc()

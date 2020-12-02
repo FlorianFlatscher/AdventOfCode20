@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-type Day1 struct{}
+type Day1 struct {
+}
 
 func (d Day1) Calc() string {
 	input := Input.ReadInputFile(1)

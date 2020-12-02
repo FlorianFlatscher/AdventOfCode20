@@ -1,13 +1,14 @@
 package Input
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 )
 
 func ReadInputFile(day int) string {
-	file, err := os.Open("./Input/input1.txt")
+	file, err := os.Open(fmt.Sprintf("./Input/input%d.txt", day))
 	if err != nil {
 		log.Fatal(err)
 	}
