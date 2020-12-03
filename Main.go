@@ -10,17 +10,18 @@ import (
 )
 
 func main() {
+	days := []Days.IDay{Days.Day1{}, Days.Day2{}, Days.Day3{}}
+	var output string
+
 	printHeader()
-	fmt.Print("Please input a dayIndex (1-24) to execute:")
-	dayIndex := askForNumber()
+	fmt.Print("Please input a day (1-24) to execute:")
+	dayIndex, err := askForNumber()
 	timeStart := time.Now()
 
-	days := []Days.IDay{Days.Day1{}, Days.Day2{}}
-	var output string
-	if dayIndex > 0 && dayIndex <= len(days) {
+	if err == nil && dayIndex > 0 && dayIndex <= len(days) {
 		output = days[dayIndex-1].Calc()
 	} else {
-		log.Fatal("NO CODE FOUND?! I GUESS NO CHRISTMAS THIS TIME :(")
+		log.Fatal("NO DAY FOUND?! I GUESS NO CHRISTMAS THIS TIME :(")
 	}
 
 	fmt.Println(output)
@@ -37,14 +38,10 @@ func printHeader() {
 	fmt.Print(string(b), "\n")
 }
 
-func askForNumber() int {
+func askForNumber() (int, error) {
 	var input int
 	for {
 		_, err := fmt.Scanf("%d", &input)
-		if err != nil {
-			log.Fatal(err)
-		} else {
-			return input
-		}
+		return input, err
 	}
 }
