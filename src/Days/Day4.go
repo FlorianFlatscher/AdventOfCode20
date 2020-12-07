@@ -1,8 +1,8 @@
 package Days
 
 import (
-	"../Input"
 	"../Constants"
+	"../Input"
 	"fmt"
 	"regexp"
 	"strings"
@@ -25,7 +25,7 @@ func (d Day4) Calc() string {
 	input := Input.ReadInputFile(4)
 	var passports []passport
 
-	for _, passportInput := range strings.Split(input, Constants.LineBreak+Constants.LineBreak) {
+	for _, passportInput := range strings.Split(input, Constants.LineSeperator+Constants.LineSeperator) {
 		r_byr := regexp.MustCompile("byr:([0-9]{4})")
 		r_iyr := regexp.MustCompile("iyr:([0-9]{4})")
 		r_eyr := regexp.MustCompile("eyr:([0-9]{4})")
