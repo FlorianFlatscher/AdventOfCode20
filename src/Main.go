@@ -29,7 +29,7 @@ func main() {
 }
 
 func printHeader() {
-	file, err := os.Open("header.txt")
+	file, err := os.Open("src/header.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
