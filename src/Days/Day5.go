@@ -13,7 +13,7 @@ type Day5 struct{}
 func (d Day5) Calc() string {
 	puzzleInput := Input.ReadInputFile(5)
 
-	binarySeats := strings.Split(puzzleInput, Constants.LineSeperator)
+	binarySeats := strings.Split(puzzleInput, Constants.LineSeparator)
 	return fmt.Sprintf("Last Seat: %vMy Seat: %v", findMax(binarySeats), getMySeat(binarySeats))
 }
 

@@ -20,7 +20,7 @@ type Day7 struct {
 }
 
 func (d Day7) Calc() string {
-	input := strings.Split(Input.ReadInputFile(7), Constants.LineSeperator)
+	input := strings.Split(Input.ReadInputFile(7), Constants.LineSeparator)
 
 	return fmt.Sprintf("Number Containing Shiny Gold: %v\nBags in Shiny Gold: %v\n", numContainingShinyGold(input), bagsInShinyGold(input))
 }

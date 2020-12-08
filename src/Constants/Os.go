@@ -1,3 +1,3 @@
 package Constants
 
-const LineSeperator = "\n"
+const LineSeparator = "\r\n"
