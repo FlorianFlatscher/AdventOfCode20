@@ -64,16 +64,15 @@ func accAtLoop(commands []command) int {
 }
 
 func accAtEnd(commands []command) int {
-	commandHistory := make(map[int]bool)
-
-	var execute func(int, bool) int
-	execute = func(start int, maySkip bool) int {
+	var execute func(int, bool, *map[int]bool) int
+	execute = func(start int, maySkip bool, commandHistory *map[int]bool) int {
+		localHistory := *commandHistory
 		acc := 0
 		for i := start; i < len(commands); i++ {
-			if commandHistory[i] {
+			if localHistory[i] {
 				return -1
 			}
-			commandHistory[i] = true
+			localHistory[i] = true
 
 			command := commands[i]
 			switch command.command {
@@ -83,7 +82,7 @@ func accAtEnd(commands []command) int {
 				if command.argument != 0 {
 					newIndex := i + command.argument
 					if newIndex < len(commands) && newIndex > 0 {
-						valueIfJump := execute(newIndex, maySkip)
+						valueIfJump := execute(newIndex, maySkip, commandHistory)
 						if valueIfJump >= 0 {
 							return valueIfJump + acc
 						} else {
@@ -95,21 +94,27 @@ func accAtEnd(commands []command) int {
 						}
 					}
 				}
-				//case "nop":
-				//	if command.argument != 0 && maySkip{
-				//		newIndex := i + command.argument
-				//		if newIndex < len(commands) && newIndex > 0 {
-				//			valueIfJump := execute(newIndex, false)
-				//			if valueIfJump >= 0 {
-				//				return valueIfJump + acc
-				//			}
-				//		}
-				//	}
+			case "nop":
+				if command.argument != 0 && maySkip {
+					newIndex := i + command.argument
+					if newIndex < len(commands) && newIndex > 0 {
+						simulationHistory := make(map[int]bool)
+						for k, v := range localHistory {
+							simulationHistory[k] = v
+						}
+						valueIfJump := execute(newIndex, false, &simulationHistory)
+						if valueIfJump >= 0 {
+							return valueIfJump + acc
+						}
+					}
+				}
 			}
 
 		}
 		return acc
 	}
 
-	return execute(0, true)
+	commandHistory := make(map[int]bool)
+
+	return execute(0, true, &commandHistory)
 }
