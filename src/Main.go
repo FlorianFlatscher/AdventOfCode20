@@ -10,7 +10,17 @@ import (
 )
 
 func main() {
-	days := []Days.IDay{Days.Day1{}, Days.Day2{}, Days.Day3{}, Days.Day4{}, Days.Day5{}, Days.Day6{}, Days.Day7{}, Days.Day8{}}
+	days := []Days.IDay{
+		Days.Day1{},
+		Days.Day2{},
+		Days.Day3{},
+		Days.Day4{},
+		Days.Day5{},
+		Days.Day6{},
+		Days.Day7{},
+		Days.Day8{},
+		Days.Day9{},
+	}
 	var output string
 
 	printHeader()
