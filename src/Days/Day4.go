@@ -5,6 +5,7 @@ import (
 	"../Input"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -29,9 +30,9 @@ func (d Day4) Calc() string {
 		r_byr := regexp.MustCompile("byr:([0-9]{4})")
 		r_iyr := regexp.MustCompile("iyr:([0-9]{4})")
 		r_eyr := regexp.MustCompile("eyr:([0-9]{4})")
-		r_hgt := regexp.MustCompile("hgt:([0-9]+)")
-		r_hcl := regexp.MustCompile("hcl:#?([0-9a-z]+)")
-		r_ecl := regexp.MustCompile("ecl:#?([0-9a-z]+)")
+		r_hgt := regexp.MustCompile("hgt:([0-9]+(?:cm|in))")
+		r_hcl := regexp.MustCompile("hcl:(#?[0-9a-z]+)")
+		r_ecl := regexp.MustCompile("ecl:(#?[0-9a-z]+)")
 		r_pid := regexp.MustCompile("pid:#?([0-9a-z]+)")
 		r_cid := regexp.MustCompile("cid:#?([0-9a-z]+)")
 
@@ -49,7 +50,7 @@ func (d Day4) Calc() string {
 		passports = append(passports, newP)
 	}
 
-	return fmt.Sprintf("1: %d", calc1(passports))
+	return fmt.Sprintf("1: %d\n2: %d\n", calc1(passports), validate(passports))
 }
 
 func calc1(s []passport) int {
@@ -68,6 +69,73 @@ func calc1(s []passport) int {
 	}
 
 	return count
+}
+
+func validate(passports []passport) int {
+	validCount := 0
+
+	for _, passport := range passports {
+		fmt.Println(passport)
+
+		if passport.byr == "" ||
+			passport.iyr == "" ||
+			passport.eyr == "" ||
+			passport.hgt == "" ||
+			passport.hcl == "" ||
+			passport.ecl == "" ||
+			passport.pid == "" {
+			continue
+		}
+
+		birthYear, _ := strconv.Atoi(passport.byr)
+		if len(passport.byr) != 4 || birthYear < 1920 || birthYear > 2002 {
+			continue
+		}
+
+		issueYear, _ := strconv.Atoi(passport.iyr)
+		if len(passport.iyr) != 4 || issueYear < 2010 || issueYear > 2020 {
+			continue
+		}
+
+		expirationYear, _ := strconv.Atoi(passport.eyr)
+		if len(passport.iyr) != 4 || expirationYear < 2020 || expirationYear > 2030 {
+			continue
+		}
+
+		if len(passport.hgt) > 2 {
+			heightUnit := passport.hgt[len(passport.hgt)-2:]
+			height, err := strconv.Atoi(passport.hgt[:len(passport.hgt)-2])
+			if err != nil {
+				panic(err)
+			}
+			switch heightUnit {
+			case "cm":
+				if height < 150 || height > 193 {
+					continue
+				}
+			case "in":
+				if height < 59 || height > 76 {
+					continue
+				}
+			}
+		}
+
+		if !regexp.MustCompile("^#[0-9a-f]{6}$").MatchString(passport.hcl) {
+			continue
+		}
+
+		if !regexp.MustCompile(passport.ecl).MatchString("amb blu brn gry grn hzl oth") {
+			continue
+		}
+
+		if !regexp.MustCompile("^[0-9]{9}$").MatchString(passport.pid) {
+			continue
+		}
+
+		validCount++
+	}
+
+	return validCount
 }
 
 func atIndexOrEmpty(s []string, index int) string {
