@@ -1,8 +1,8 @@
-package Days
+package days
 
 import (
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,7 +18,7 @@ type password struct {
 }
 
 func (d Day2) Calc() string {
-	input := Input.ReadInputFile(2)
+	input := input.ReadInputFile(2)
 	var passwords []password
 
 	for _, e := range strings.Split(input, "\r\n") {

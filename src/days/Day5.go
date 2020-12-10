@@ -1,9 +1,9 @@
-package Days
+package days
 
 import (
-	"../Constants"
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"strconv"
 	"strings"
 )
@@ -11,9 +11,9 @@ import (
 type Day5 struct{}
 
 func (d Day5) Calc() string {
-	puzzleInput := Input.ReadInputFile(5)
+	puzzleInput := input.ReadInputFile(5)
 
-	binarySeats := strings.Split(puzzleInput, Constants.LineSeparator)
+	binarySeats := strings.Split(puzzleInput, constants.LineSeparator)
 	return fmt.Sprintf("Last Seat: %vMy Seat: %v", findMax(binarySeats), getMySeat(binarySeats))
 }
 

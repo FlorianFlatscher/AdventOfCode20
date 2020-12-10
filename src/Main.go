@@ -1,25 +1,27 @@
 package main
 
 import (
-	"./Days"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/days"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 func main() {
-	days := []Days.IDay{
-		Days.Day1{},
-		Days.Day2{},
-		Days.Day3{},
-		Days.Day4{},
-		Days.Day5{},
-		Days.Day6{},
-		Days.Day7{},
-		Days.Day8{},
-		Days.Day9{},
+	days := []days.IDay{
+		days.Day1{},
+		days.Day2{},
+		days.Day3{},
+		days.Day4{},
+		days.Day5{},
+		days.Day6{},
+		days.Day7{},
+		days.Day8{},
+		days.Day9{},
+		days.Day10{},
 	}
 	var output string
 
@@ -33,17 +35,16 @@ func main() {
 	} else {
 		log.Fatal("NO DAY FOUND?! I GUESS NO CHRISTMAS THIS TIME :(")
 	}
-
 	fmt.Println(output)
-	fmt.Printf("(in %s)", time.Since(timeStart))
+	fmt.Printf("(in %s)\n", time.Since(timeStart))
 }
 
 func printHeader() {
-	file, err := os.Open("src/header.txt")
+	path, _ := filepath.Abs("src/header.txt")
+	file, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	b, err := ioutil.ReadAll(file)
 	fmt.Print(string(b), "\n")
 }

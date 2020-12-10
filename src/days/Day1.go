@@ -1,8 +1,8 @@
-package Days
+package days
 
 import (
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"strconv"
 	"strings"
 )
@@ -11,7 +11,7 @@ type Day1 struct {
 }
 
 func (d Day1) Calc() string {
-	input := Input.ReadInputFile(1)
+	input := input.ReadInputFile(1)
 
 	lines := strings.Split(input, "\r\n")
 	var arr []int

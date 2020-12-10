@@ -1,9 +1,9 @@
-package Days
+package days
 
 import (
-	"../Constants"
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,10 +23,10 @@ type passport struct {
 }
 
 func (d Day4) Calc() string {
-	input := Input.ReadInputFile(4)
+	input := input.ReadInputFile(4)
 	var passports []passport
 
-	for _, passportInput := range strings.Split(input, Constants.LineSeparator+Constants.LineSeparator) {
+	for _, passportInput := range strings.Split(input, strings.Repeat(constants.LineSeparator, 2)) {
 		r_byr := regexp.MustCompile("byr:([0-9]{4})")
 		r_iyr := regexp.MustCompile("iyr:([0-9]{4})")
 		r_eyr := regexp.MustCompile("eyr:([0-9]{4})")

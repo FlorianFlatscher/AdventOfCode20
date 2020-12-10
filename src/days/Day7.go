@@ -1,9 +1,9 @@
-package Days
+package days
 
 import (
-	"../Constants"
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"regexp"
 	"strconv"
 	"strings"
@@ -20,7 +20,7 @@ type Day7 struct {
 }
 
 func (d Day7) Calc() string {
-	input := strings.Split(Input.ReadInputFile(7), Constants.LineSeparator)
+	input := strings.Split(input.ReadInputFile(7), constants.LineSeparator)
 
 	return fmt.Sprintf("Number Containing Shiny Gold: %v\nBags in Shiny Gold: %v\n", numContainingShinyGold(input), bagsInShinyGold(input))
 }

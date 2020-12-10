@@ -1,18 +1,18 @@
-package Days
+package days
 
 import (
-	"../Constants"
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"strings"
 )
 
 type Day6 struct{}
 
 func (d Day6) Calc() string {
-	puzzleInput := Input.ReadInputFile(6)
+	puzzleInput := input.ReadInputFile(6)
 
-	answeredQuestions := strings.Split(puzzleInput, strings.Repeat(Constants.LineSeparator, 2))
+	answeredQuestions := strings.Split(puzzleInput, strings.Repeat(constants.LineSeparator, 2))
 
 	return fmt.Sprintf(
 		"Awnsered questions by anyone: %v\nAwnsered questions by everyone: %v", countAnsweredQuestionsAnyone(answeredQuestions), countAnsweredQuestionsEveryone(answeredQuestions))

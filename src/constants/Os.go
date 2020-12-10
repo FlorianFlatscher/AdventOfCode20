@@ -1,3 +1,3 @@
-package Constants
+package constants
 
 const LineSeparator = "\r\n"

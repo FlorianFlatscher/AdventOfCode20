@@ -1,9 +1,9 @@
-package Days
+package days
 
 import (
-	"../Constants"
-	"../Input"
-	fmt "fmt"
+	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"strconv"
 	"strings"
 )
@@ -12,16 +12,16 @@ type Day9 struct {
 }
 
 func (d Day9) Calc() string {
-	var input []int
-	for _, line := range strings.Split(Input.ReadInputFile(9), Constants.LineSeparator) {
+	var i []int
+	for _, line := range strings.Split(input.ReadInputFile(9), constants.LineSeparator) {
 		value, err := strconv.Atoi(line)
 		if err != nil {
 			panic(err)
 		}
-		input = append(input, value)
+		i = append(i, value)
 	}
 
-	return fmt.Sprintf("First number not a sum of previous 25: %v\nEncryption weakness: %v\n", firstNotSum(input), encryptionWeakness(input))
+	return fmt.Sprintf("First number not a sum of previous 25: %v\nEncryption weakness: %v\n", firstNotSum(i), encryptionWeakness(i))
 }
 
 func firstNotSum(input []int) int {

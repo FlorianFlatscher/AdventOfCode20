@@ -1,9 +1,9 @@
-package Days
+package days
 
 import (
-	"../Constants"
-	"../Input"
 	"fmt"
+	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
+	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"regexp"
 	"strconv"
 	"strings"
@@ -23,7 +23,7 @@ type command struct {
 }
 
 func (d Day8) Calc() string {
-	input := strings.Split(Input.ReadInputFile(8), Constants.LineSeparator)
+	input := strings.Split(input.ReadInputFile(8), constants.LineSeparator)
 	var commands []command
 
 	for _, e := range input {
