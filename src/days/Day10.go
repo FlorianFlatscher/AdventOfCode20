@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
 	"github.com/FlorianFlatscher/AdventOfCode/src/input"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -46,7 +47,7 @@ func chainAdapters(adapters []int) int {
 func numberDistinctArrangements(adapters []int) int {
 	adapters = append([]int{0}, adapters...)
 	var chain func(adapterIndex int) int
-	memo := make(map[int] int)
+	memo := make(map[int]int)
 
 	chain = func(adapterIndex int) int {
 		possibilities := 0
@@ -54,10 +55,11 @@ func numberDistinctArrangements(adapters []int) int {
 			for i := adapterIndex + 1; i < len(adapters) && adapters[i]-adapters[adapterIndex] <= 3; i++ {
 				possibilities += chain(i)
 			}
-			memo[adapterIndex] = possibilities
+			memo[adapterIndex] = int(math.Max(float64(possibilities), 1))
 		} else {
 			possibilities += memo[adapterIndex]
 		}
+
 		if possibilities > 0 {
 			return possibilities
 		} else {
