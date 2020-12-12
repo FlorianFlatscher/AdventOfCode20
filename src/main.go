@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/FlorianFlatscher/AdventOfCode/src/days"
+	"github.com/FlorianFlatscher/AdventOfCode/src/solution"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,18 +11,19 @@ import (
 )
 
 func main() {
-	days := []days.IDay{
-		days.Day1{},
-		days.Day2{},
-		days.Day3{},
-		days.Day4{},
-		days.Day5{},
-		days.Day6{},
-		days.Day7{},
-		days.Day8{},
-		days.Day9{},
-		days.Day10{},
-		days.Day11{},
+	days := []solution.IDay{
+		solution.Day1{},
+		solution.Day2{},
+		solution.Day3{},
+		solution.Day4{},
+		solution.Day5{},
+		solution.Day6{},
+		solution.Day7{},
+		solution.Day8{},
+		solution.Day9{},
+		solution.Day10{},
+		solution.Day11{},
+		solution.Day12{},
 	}
 	var output string
 

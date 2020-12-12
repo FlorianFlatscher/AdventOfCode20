@@ -1,4 +1,4 @@
-package days
+package solution
 
 import (
 	"fmt"

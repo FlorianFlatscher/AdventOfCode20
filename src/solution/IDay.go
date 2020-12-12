@@ -1,4 +1,4 @@
-package days
+package solution
 
 type IDay interface {
 	Calc() string
