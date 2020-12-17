@@ -27,11 +27,13 @@ func main() {
 		solution.Day13{},
 		solution.Day14{},
 		solution.Day15{},
+		solution.Day16{},
+		solution.Day17{},
 	}
 	var output string
 
 	printHeader()
-	fmt.Print("Please input a day (1-24) to execute:")
+	fmt.Print("Please input a day (1-25):")
 	dayIndex, err := askForNumber()
 	timeStart := time.Now()
 
