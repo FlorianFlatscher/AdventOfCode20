@@ -28,7 +28,9 @@ func (c cubeState) String() string {
 
 func (d Day17) Calc() string {
 	grid := d.parseInput(input.ReadInputFile(17))
-	return fmt.Sprintf("1: %v\n", d.conwayCubes3rdDimension(grid))
+	grid4d := make([][][][]cubeState, 1)
+	grid4d[0] = grid
+	return fmt.Sprintf("1: %v\n2: %v\n", d.conwayCubes3rdDimension(grid), d.conwayCubes4thDimension(grid4d))
 }
 
 func (d Day17) conwayCubes4thDimension(grid [][][][]cubeState) int {
@@ -40,11 +42,12 @@ func (d Day17) conwayCubes4thDimension(grid [][][][]cubeState) int {
 			nextCycle[w] = make([][][]cubeState, len(grid[0])+2)
 			for z := range nextCycle[w] {
 				nextCycle[w][z] = make([][]cubeState, len(grid[0][0])+2)
-				for y := range nextCycle[z] {
+				for y := range nextCycle[w][z] {
 					nextCycle[w][z][y] = make([]cubeState, len(grid[0][0][0])+2)
 					for x := range nextCycle[w][z][y] {
 						state := INACTIVE
 						if w > 0 && z > 0 && y > 0 && x > 0 && w <= len(grid) && z <= len(grid[0]) && y <= len(grid[0][0]) && x <= len(grid[0][0][0]) {
+
 							state = grid[w-1][z-1][y-1][x-1]
 						}
 						neighbours := d.countActiveNeighbors4thDimension(grid, w-1, z-1, y-1, x-1)
@@ -114,7 +117,37 @@ func (d Day17) conwayCubes3rdDimension(grid [][][]cubeState) int {
 	return active
 }
 
-func (_ Day17) countActiveNeighbors3rdDimension(grid [][][]cubeState, z, y, x int) int {
+func (d Day17) copyGrid1d(grid []cubeState) []cubeState {
+	newGrid := make([]cubeState, len(grid))
+	copy(newGrid, grid)
+	return newGrid
+}
+
+func (d Day17) copyGrid2d(grid [][]cubeState) [][]cubeState {
+	newGrid := make([][]cubeState, len(grid))
+	for l := range grid {
+		newGrid[l] = d.copyGrid1d(grid[l])
+	}
+	return newGrid
+}
+
+func (d Day17) copyGrid3d(grid [][][]cubeState) [][][]cubeState {
+	newGrid := make([][][]cubeState, len(grid))
+	for l := range grid {
+		newGrid[l] = d.copyGrid2d(grid[l])
+	}
+	return newGrid
+}
+
+func (d Day17) copyGrid4d(grid [][][][]cubeState) [][][][]cubeState {
+	newGrid := make([][][][]cubeState, len(grid))
+	for l := range grid {
+		newGrid[l] = d.copyGrid3d(grid[l])
+	}
+	return newGrid
+}
+
+func (d Day17) countActiveNeighbors3rdDimension(grid [][][]cubeState, z, y, x int) int {
 	neighbors := 0
 	for zz := -1; zz < 2; zz++ {
 		for yy := -1; yy < 2; yy++ {
