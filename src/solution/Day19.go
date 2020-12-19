@@ -76,19 +76,15 @@ func (d Day19) countRule0(rules map[int]rule, messages []message) int {
 						currentIndex := allCurrentIndex[possibilityIndex]
 						ruleApplies, length := checkMessageForRule(m[currentIndex:], nextRule)
 						if ruleApplies {
-							allCurrentIndex = append(allCurrentIndex[:possibilityIndex], allCurrentIndex[possibilityIndex+1:]...)
-							possibilityIndex--
-							oldIndexLength--
 							for _, newIndex := range length {
 								if newIndex <= len(m) {
 									allCurrentIndex = append(allCurrentIndex, currentIndex+newIndex)
 								}
 							}
-						} else {
-							allCurrentIndex = append(allCurrentIndex[:possibilityIndex], allCurrentIndex[possibilityIndex+1:]...)
-							possibilityIndex--
-							oldIndexLength--
 						}
+						allCurrentIndex = append(allCurrentIndex[:possibilityIndex], allCurrentIndex[possibilityIndex+1:]...)
+						possibilityIndex--
+						oldIndexLength--
 					}
 				}
 				totalMatchesByAllOrGroups = append(totalMatchesByAllOrGroups, allCurrentIndex...)
