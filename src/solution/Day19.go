@@ -48,53 +48,53 @@ func (d Day19) Calc() string {
 }
 
 func (d Day19) countRule0(rules map[int]rule, messages []message) int {
-	var appliesRule func(message, int) (bool, []int)
-	appliesRule = func(m message, rIndex int) (bool, []int) {
-		r := rules[rIndex]
-		switch r[0] {
+	var checkMessageForRule func(message, int) (bool, []int)
+	checkMessageForRule = func(m message, ruleNumber int) (bool, []int) {
+		rule := rules[ruleNumber]
+		switch rule[0] {
 		case '"':
 			if len(m) == 0 {
 				return false, nil
 			}
-			if m[0] == r[1] {
+			if m[0] == rule[1] {
 				return true, []int{1}
 			}
 			return false, nil
 		default:
-			orGroups := strings.Split(string(r), " | ")
-			var totalMatches []int
-			for _, og := range orGroups {
-				followingRules := strings.Split(og, " ")
-				stringIndex := []int{0}
-				for _, fr := range followingRules {
+			orGroups := strings.Split(string(rule), " | ")
+			var totalMatchesByAllOrGroups []int
+			for _, orGroup := range orGroups {
+				rulesInOrgroup := strings.Split(orGroup, " ")
+				allCurrentIndex := []int{0}
+				for _, fr := range rulesInOrgroup {
 					nextRule, err := strconv.Atoi(fr)
 					if err != nil {
 						panic(err)
 					}
-					oldStLength := len(stringIndex)
-					for stIndex := 0; stIndex < oldStLength; stIndex++ {
-						st := stringIndex[stIndex]
-						does, length := appliesRule(m[st:], nextRule)
-						if does {
-							stringIndex = append(stringIndex[:stIndex], stringIndex[stIndex+1:]...)
-							stIndex--
-							oldStLength--
+					oldIndexLength := len(allCurrentIndex)
+					for possibilityIndex := 0; possibilityIndex < oldIndexLength; possibilityIndex++ {
+						currentIndex := allCurrentIndex[possibilityIndex]
+						ruleApplies, length := checkMessageForRule(m[currentIndex:], nextRule)
+						if ruleApplies {
+							allCurrentIndex = append(allCurrentIndex[:possibilityIndex], allCurrentIndex[possibilityIndex+1:]...)
+							possibilityIndex--
+							oldIndexLength--
 							for _, newIndex := range length {
 								if newIndex <= len(m) {
-									stringIndex = append(stringIndex, st+newIndex)
+									allCurrentIndex = append(allCurrentIndex, currentIndex+newIndex)
 								}
 							}
 						} else {
-							stringIndex = append(stringIndex[:stIndex], stringIndex[stIndex+1:]...)
-							stIndex--
-							oldStLength--
+							allCurrentIndex = append(allCurrentIndex[:possibilityIndex], allCurrentIndex[possibilityIndex+1:]...)
+							possibilityIndex--
+							oldIndexLength--
 						}
 					}
 				}
-				totalMatches = append(totalMatches, stringIndex...)
+				totalMatchesByAllOrGroups = append(totalMatchesByAllOrGroups, allCurrentIndex...)
 			}
-			if len(totalMatches) > 0 {
-				return true, totalMatches
+			if len(totalMatchesByAllOrGroups) > 0 {
+				return true, totalMatchesByAllOrGroups
 			} else {
 				return false, nil
 			}
@@ -103,7 +103,7 @@ func (d Day19) countRule0(rules map[int]rule, messages []message) int {
 
 	count := 0
 	for _, m := range messages {
-		if does, length := appliesRule(m, 0); does {
+		if does, length := checkMessageForRule(m, 0); does {
 			for _, l := range length {
 				if l == len(m) {
 					count++
