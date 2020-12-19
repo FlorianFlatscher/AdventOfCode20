@@ -39,76 +39,64 @@ func (d Day19) Calc() string {
 		messages = append(messages, message(m))
 	}
 
-	fmt.Println(rules)
-	fmt.Println(messages)
-
-	//part1 := d.countRule0(rules, messages)
+	part1 := d.countRule0(rules, messages)
 	rules[8] = "42 | 42 8"
 	rules[11] = "42 31 | 42 11 31"
 	part2 := d.countRule0(rules, messages)
 
-	return fmt.Sprintf("1: %v\n2: %v\n", nil, part2)
+	return fmt.Sprintf("1: %v\n2: %v\n", part1, part2)
 }
 
-//378 too high
-//370 too high
-//282 too low
-
 func (d Day19) countRule0(rules map[int]rule, messages []message) int {
-	var appliesRule func(message, int) (bool, int)
-	appliesRule = func(m message, rIndex int) (bool, int) {
+	var appliesRule func(message, int) (bool, []int)
+	appliesRule = func(m message, rIndex int) (bool, []int) {
 		r := rules[rIndex]
 		switch r[0] {
 		case '"':
 			if len(m) == 0 {
-				return false, 0
+				return false, nil
 			}
 			if m[0] == r[1] {
-				return true, 1
+				return true, []int{1}
 			}
-			return false, -1
+			return false, nil
 		default:
 			orGroups := strings.Split(string(r), " | ")
-			highestMatch := -1
+			var totalMatches []int
 			for _, og := range orGroups {
 				followingRules := strings.Split(og, " ")
-				index := 0
-				for i, fr := range followingRules {
+				stringIndex := []int{0}
+				for _, fr := range followingRules {
 					nextRule, err := strconv.Atoi(fr)
 					if err != nil {
 						panic(err)
 					}
-					//if nextRule == rIndex && i+2 == len(followingRules){
-					//	tryNextRule, err := strconv.Atoi(followingRules[i+1])
-					//	if err != nil {
-					//		panic(err)
-					//	}
-					//	for tryStart := index+1; tryStart < len(m); tryStart++ {
-					//		does, length := appliesRule(m[tryStart:], tryNextRule)
-					//		doesThis, lengthThis := appliesRule(m[index+1:tryStart], nextRule)
-					//		if  does && length + tryStart == len(m) && doesThis && index + lengthThis == tryStart + 1{
-					//			return true, len(m)
-					//		}
-					//	}
-					//}
-
-					does, length := appliesRule(m[index:], nextRule)
-					if does {
-						index += length
-						if i == len(followingRules)-1 {
-							if index > highestMatch {
-								highestMatch = index
+					oldStLength := len(stringIndex)
+					for stIndex := 0; stIndex < oldStLength; stIndex++ {
+						st := stringIndex[stIndex]
+						does, length := appliesRule(m[st:], nextRule)
+						if does {
+							stringIndex = append(stringIndex[:stIndex], stringIndex[stIndex+1:]...)
+							stIndex--
+							oldStLength--
+							for _, newIndex := range length {
+								if newIndex <= len(m) {
+									stringIndex = append(stringIndex, st+newIndex)
+								}
 							}
+						} else {
+							stringIndex = append(stringIndex[:stIndex], stringIndex[stIndex+1:]...)
+							stIndex--
+							oldStLength--
 						}
-					} else {
-						break
 					}
 				}
+				totalMatches = append(totalMatches, stringIndex...)
 			}
-			if highestMatch > 0 {
-				return true, highestMatch
+			if len(totalMatches) > 0 {
+				return true, totalMatches
 			} else {
-				return false, highestMatch
+				return false, nil
 			}
 		}
 	}
@@ -116,11 +104,13 @@ func (d Day19) countRule0(rules map[int]rule, messages []message) int {
 	count := 0
 	for _, m := range messages {
 		if does, length := appliesRule(m, 0); does {
-			fmt.Println(m, length)
-			if length == len(m) {
-				count++
-
+			for _, l := range length {
+				if l == len(m) {
+					count++
+					break
+				}
 			}
+
 		}
 	}
 	return count
