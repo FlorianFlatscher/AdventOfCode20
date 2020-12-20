@@ -31,6 +31,7 @@ func main() {
 		solution.Day17{},
 		solution.Day18{},
 		solution.Day19{},
+		solution.Day20{},
 	}
 	var output string
 
