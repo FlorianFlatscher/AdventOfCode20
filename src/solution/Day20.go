@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
 	"github.com/FlorianFlatscher/AdventOfCode/src/input"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -170,22 +171,22 @@ func (d Day20) Calc() string {
 }
 
 func (d Day20) multiplyCorners(tiles []tile) int {
-	order := d.alignTiles(make([][]tile, 0), tiles)
+	order := d.alignTiles(nil, tiles, int(math.Round(math.Sqrt(float64(len(tiles))))))
 	d.printOrder(order)
 	fmt.Println(d.validateOrder(order))
 	return order[0][0].id * order[0][len(order[0])-1].id * order[len(order)-1][0].id * order[len(order)-1][len(order[0])-1].id
 }
 
-func (d Day20) alignTiles(orderSoFar [][]tile, tilesLeft []tile) [][]tile {
+func (d Day20) alignTiles(orderSoFar [][]tile, tilesLeft []tile, sideLength int) [][]tile {
 	if len(tilesLeft) == 0 {
 		return orderSoFar
 	}
-	for r := range orderSoFar {
-		for c := range orderSoFar[r] {
-			fmt.Print(orderSoFar[r][c].id, ", ")
-		}
-	}
-	fmt.Println("")
+	//for r := range orderSoFar {
+	//	for c := range orderSoFar[r] {
+	//		fmt.Print(orderSoFar[r][c].id, ", ")
+	//	}
+	//}
+	//fmt.Println("")
 	for tileIndex, nextTile := range tilesLeft {
 		copyOrder := make([][]tile, len(orderSoFar))
 		for i := range orderSoFar {
@@ -196,7 +197,7 @@ func (d Day20) alignTiles(orderSoFar [][]tile, tilesLeft []tile) [][]tile {
 		copy(newTilesLeft, tilesLeft)
 		newTilesLeft = append(newTilesLeft[:tileIndex], newTilesLeft[tileIndex+1:]...)
 
-		if len(copyOrder) > 0 {
+		if len(copyOrder) > 0 && len(copyOrder[len(copyOrder)-1]) < sideLength {
 			//Try out with every rotation
 			rotatedTile := nextTile
 			for r := 0; r < 4; r++ {
@@ -211,7 +212,7 @@ func (d Day20) alignTiles(orderSoFar [][]tile, tilesLeft []tile) [][]tile {
 					//Try out appending it to this line
 					copyOrder[len(copyOrder)-1] = append(copyOrder[len(copyOrder)-1], flippedTile)
 					if d.validateOrder(copyOrder) {
-						try := d.alignTiles(copyOrder, newTilesLeft)
+						try := d.alignTiles(copyOrder, newTilesLeft, sideLength)
 						if try != nil {
 							return try
 						}
@@ -222,32 +223,32 @@ func (d Day20) alignTiles(orderSoFar [][]tile, tilesLeft []tile) [][]tile {
 				//rotate the tile
 				rotatedTile = *rotatedTile.Rotate()
 			}
-		}
-
-		//Create a new line
-		rotatedTile := nextTile
-		for r := 0; r < 4; r++ {
-			//Try to flip it
-			for f := 0; f < 3; f++ {
-				flippedTile := rotatedTile
-				if f > 0 && f%2 == 0 {
-					flippedTile = *flippedTile.FlipHorizontally()
-				} else if f > 0 && f%2 == 1 {
-					flippedTile = *flippedTile.FlipVertically()
-				}
-				//Try out appending it to next line
-				copyOrder = append(copyOrder, []tile{flippedTile})
-				if d.validateOrder(copyOrder) {
-					try := d.alignTiles(copyOrder, newTilesLeft)
-					if try != nil {
-						return try
+		} else {
+			//Create a new line
+			rotatedTile := nextTile
+			for r := 0; r < 4; r++ {
+				//Try to flip it
+				for f := 0; f < 3; f++ {
+					flippedTile := rotatedTile
+					if f > 0 && f%2 == 0 {
+						flippedTile = *flippedTile.FlipHorizontally()
+					} else if f > 0 && f%2 == 1 {
+						flippedTile = *flippedTile.FlipVertically()
 					}
+					//Try out appending it to next line
+					copyOrder = append(copyOrder, []tile{flippedTile})
+					if d.validateOrder(copyOrder) {
+						try := d.alignTiles(copyOrder, newTilesLeft, sideLength)
+						if try != nil {
+							return try
+						}
+					}
+					//Otherwise remove it again
+					copyOrder = copyOrder[:len(copyOrder)-1]
 				}
-				//Otherwise remove it again
-				copyOrder = copyOrder[:len(copyOrder)-1]
+				//rotate the tile
+				rotatedTile = *rotatedTile.Rotate()
 			}
-			//rotate the tile
-			rotatedTile = *rotatedTile.Rotate()
 		}
 	}
 
