@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/FlorianFlatscher/AdventOfCode/src/constants"
 	"github.com/FlorianFlatscher/AdventOfCode/src/input"
+	"sort"
 	"strings"
 )
 
@@ -50,87 +51,143 @@ func (d Day21) Calc() string {
 		foods = append(foods, *newFood(line))
 	}
 
-	d.countIngredientsWithNoAllergy(foods)
-	return fmt.Sprintf("1: %v\n2: %v\n", nil, nil)
+	return fmt.Sprintf("1: %v\n2: %v\n", d.countIngredientsWithNoAllergy(foods), d.generateCanonicalDangerousIngredientList(foods))
 }
 
-func (d Day21) countIngredientsWithNoAllergy(foods []Food) {
-	allIngredients := make(map[Ingredient]bool)
-	allAllergens := make(map[Allergen]bool)
+//192 too low
 
-	doesNotHaveAllergen := make(map[Ingredient]map[Allergen]bool)
+func (d Day21) countIngredientsWithNoAllergy(foods []Food) int {
+	ingredients := make([]Ingredient, 0)
+	allergens := make([]Allergen, 0)
 
 	for _, f := range foods {
 		for _, a := range f.allergens {
-			allAllergens[a] = true
+			allergens = append(allergens, a)
 		}
 		for _, i := range f.ingredients {
-			allIngredients[i] = true
+			ingredients = append(ingredients, i)
 		}
 	}
 
-	for i := range allIngredients {
-		doesNotHaveAllergen[i] = make(map[Allergen]bool)
+	hasAllergen := make(map[Ingredient]map[Allergen]bool)
+	for _, i := range ingredients {
+		hasAllergen[i] = make(map[Allergen]bool)
+		for _, a := range allergens {
+			hasAllergen[i][a] = true
+		}
 	}
 
-	//for _, f := range foods {
-	//	for _, i := range f.ingredients {
-	//		for a := range allAllergens {
-	//			doesNotHaveAllergen[i][a] = true
-	//		}
-	//	}
-	//}
-	//
-	//for _, f := range foods {
-	//	for _, i := range f.ingredients {
-	//		for _, a := range f.allergens {
-	//			delete(doesNotHaveAllergen[i], a)
-	//		}
-	//	}
-	//}
+	for _, f := range foods {
+		for _, a := range f.allergens {
+			for _, i := range ingredients {
+				found := false
+				for _, foodI := range f.ingredients {
+					if foodI == i {
+						found = true
+						break
+					}
+				}
+				if !found {
+					delete(hasAllergen[i], a)
+				}
+			}
+		}
+	}
+
+	count := 0
+	for i, v := range hasAllergen {
+		if len(v) == 0 {
+			for _, f := range foods {
+				for _, fi := range f.ingredients {
+					if i == fi {
+						count++
+						break
+					}
+				}
+			}
+		}
+	}
+
+	return count
+}
+
+func (d Day21) generateCanonicalDangerousIngredientList(foods []Food) string {
+	ingredients := make([]Ingredient, 0)
+	allergens := make([]Allergen, 0)
+
+	for _, f := range foods {
+		for _, a := range f.allergens {
+			allergens = append(allergens, a)
+		}
+		for _, i := range f.ingredients {
+			ingredients = append(ingredients, i)
+		}
+	}
+
+	hasAllergen := make(map[Ingredient]map[Allergen]bool)
+
+	for _, i := range ingredients {
+		hasAllergen[i] = make(map[Allergen]bool)
+		for _, a := range allergens {
+			hasAllergen[i][a] = true
+		}
+	}
+
+	for _, f := range foods {
+		for _, a := range f.allergens {
+			for _, i := range ingredients {
+				found := false
+				for _, foodI := range f.ingredients {
+					if foodI == i {
+						found = true
+						break
+					}
+				}
+				if !found {
+					delete(hasAllergen[i], a)
+				}
+			}
+		}
+	}
+
+	count := 0
+	for i, v := range hasAllergen {
+		if len(v) == 0 {
+			for _, f := range foods {
+				for _, fi := range f.ingredients {
+					if i == fi {
+						count++
+						break
+					}
+				}
+			}
+		}
+	}
+
+	finalList := make(map[Ingredient]Allergen)
 
 	for true {
 		somethingChanged := false
 
 		for _, f := range foods {
-			for i := 0; i < len(f.ingredients); i++ {
-				ing := f.ingredients[i]
-				if len(doesNotHaveAllergen[ing]) == len(allAllergens)-1 {
+			for _, ing := range f.ingredients {
+				if len(hasAllergen[ing]) == 0 {
 					continue
 				}
-
-				for _, a := range f.allergens {
-					unique := true
-
-					for _, checkI := range f.ingredients {
-						if checkI == ing {
-							continue
-						}
-
-						if _, ok := doesNotHaveAllergen[checkI][a]; ok {
-							unique = false
-							break
-						}
+				if len(hasAllergen[ing]) == 1 {
+					somethingChanged = true
+					for a, _ := range hasAllergen[ing] {
+						finalList[ing] = a
 					}
-
-					if unique {
-						somethingChanged = true
-
-						for _, checkI := range f.ingredients {
-							if checkI == ing {
-								continue
+					for _, allIng := range ingredients {
+						for a, _ := range hasAllergen[allIng] {
+							if a == finalList[ing] {
+								delete(hasAllergen[allIng], a)
 							}
-							doesNotHaveAllergen[checkI][a] = true
 						}
-						for all := range allAllergens {
-							doesNotHaveAllergen[ing][all] = true
-						}
-						delete(doesNotHaveAllergen[ing], a)
-						break
 					}
 				}
 			}
-			fmt.Println(doesNotHaveAllergen)
 		}
 
 		if !somethingChanged {
@@ -138,9 +195,19 @@ func (d Day21) countIngredientsWithNoAllergy(foods []Food) {
 		}
 	}
 
-	for ingredient, allergens := range doesNotHaveAllergen {
-		if 0 == len(allergens) {
-			fmt.Println(ingredient)
-		}
+	fmt.Println(finalList)
+
+	keys := make([]string, 0, len(finalList))
+	for key := range finalList {
+		keys = append(keys, string(key))
 	}
+	sort.Slice(keys, func(i1, i2 int) bool {
+		return 0 > strings.Compare(string(finalList[Ingredient(keys[i1])]), string(finalList[Ingredient(keys[i2])]))
+	})
+	//values := make([]string, 0, len(finalList))
+	//for _, k := range keys {
+	//	values = append(values, string(finalList[Ingredient(k)]))
+	//}
+
+	return strings.Join(keys, ",")
 }
