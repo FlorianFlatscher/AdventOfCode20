@@ -26,7 +26,7 @@ func (c *Cycle) get(i int) int {
 func (c *Cycle) cut(min int, max int) []int {
 	max = max % len(*c)
 	min = min % len(*c)
-	var slice = make([]int, 0)
+	var slice = make([]int, 0, max)
 	if max <= min {
 		slice = append(slice, (*c)[min:]...)
 		slice = append(slice, (*c)[:max]...)
@@ -40,7 +40,7 @@ func (c *Cycle) cut(min int, max int) []int {
 }
 
 func (c *Cycle) find(x int) int {
-	for i := range *c {
+	for i := len(*c) - 1; i >= 0; i-- {
 		if (*c)[i] == x {
 			return i
 		}
@@ -49,12 +49,10 @@ func (c *Cycle) find(x int) int {
 }
 
 func (c *Cycle) insert(i int, x []int) {
-	i = i % (1 + len(*c))
-	newSlice := make([]int, i, len(*c)+len(x))
-	copy(newSlice, *c)
-	newSlice = append(newSlice, x...)
-	newSlice = append(newSlice, (*c)[i:]...)
-	*c = newSlice
+	*c = append(*c, make([]int, len(x))...)
+	//*d = append((*d)[:i+len(x)], (*d)[i:]...)
+	copy((*c)[i+len(x):], (*c)[i:])
+	copy((*c)[i:], x)
 }
 
 func (d Day23) Calc() string {
@@ -67,7 +65,7 @@ func (d *Day23) simulate(cycle Cycle) string {
 	copy(c, cycle)
 
 	var current = 0
-	for move := 0; move < 10000; move++ {
+	for move := 0; move < 100; move++ {
 		currentValue := c.get(current)
 		fmt.Println("--", move+1, "--")
 		fmt.Println("cups:", c)
@@ -109,34 +107,34 @@ func (d *Day23) simulate(cycle Cycle) string {
 }
 
 func (d *Day23) simulateBig(cycle Cycle) int {
-	return -1
+	return 0
 	var c = Cycle(make([]int, 1000000))
 	copy(c, cycle)
 
+	for i := len(cycle); i < 1000000; i++ {
+		c[i] = i + 1
+	}
+
 	var current = 0
 	for move := 0; move < 10000000; move++ {
-		//fmt.Println(move)
-		currentValue := c.get(current)
+		fmt.Println(move)
+		//currentValue := c.get(current)
 		nextThree := c.cut(current+1, current+4)
-		nextMap := make(map[int]struct{})
-		for _, v := range nextThree {
-			nextMap[v] = struct{}{}
-		}
 
 		designationIndex := -1
-		for next := currentValue - 1; designationIndex < 0; next-- {
-			if _, ok := nextMap[next]; !ok {
-				if next > 0 {
-					designationIndex = c.find(next)
-				} else {
-					designationIndex = c.find(len(c) + next + 3)
-				}
-			}
-		}
+
+		//for next := currentValue - 1; designationIndex < 0; next-- {
+		//	if _, ok := nextMap[next]; !ok {
+		//		if next > 0 {
+		//			designationIndex = c.find(next)
+		//		} else {
+		//			designationIndex = c.find(len(c) + next + 3)
+		//		}
+		//	}
+		//}
+
 		c.insert(designationIndex+1, nextThree)
-		//fmt.Println(move+2, ":")
-		//fmt.Println(c)
-		c.insert(designationIndex+1, nextThree)
+
 		if designationIndex < current {
 			oldCurrent := current
 			current = current + 4
