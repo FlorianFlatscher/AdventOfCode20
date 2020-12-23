@@ -5,156 +5,192 @@ import (
 	"github.com/FlorianFlatscher/AdventOfCode/src/input"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Day23 struct{}
 
-type Cycle []int
+type Dequeue []int
 
-func newCycle(x string) *Cycle {
-	a := Cycle(make([]int, len(x)))
+func (d *Dequeue) Pop() int {
+	first := (*d)[0]
+	*d = (*d)[1:]
+	return first
+}
+
+func (d *Dequeue) Peek() int {
+	return (*d)[0]
+}
+
+func (d *Dequeue) Append(x int) {
+	*d = append(*d, x)
+}
+
+func newDequeue(x string) *Dequeue {
+	a := Dequeue(make([]int, len(x)))
 	for i, c := range x {
 		a[i] = mustAtoi(string(c))
 	}
 	return &a
 }
 
-func (c *Cycle) get(i int) int {
-	return (*c)[i%len(*c)]
+func (d *Dequeue) get(i int) int {
+	return (*d)[i]
 }
 
-func (c *Cycle) cut(min int, max int) []int {
-	max = max % len(*c)
-	min = min % len(*c)
+func (d *Dequeue) cut(min int, max int) []int {
 	var slice = make([]int, 0)
-	if max <= min {
-		slice = append(slice, (*c)[min:]...)
-		slice = append(slice, (*c)[:max]...)
-		*c = (*c)[:min]
-		*c = (*c)[max:]
-	} else {
-		slice = append(slice, (*c)[min:max]...)
-		*c = append((*c)[:min], (*c)[max:]...)
-	}
+	slice = append(slice, (*d)[min:max]...)
+	*d = append((*d)[:min], (*d)[max:]...)
 	return slice
 }
 
-func (c *Cycle) find(x int) int {
-	for i := range *c {
-		if (*c)[i] == x {
+func (d *Dequeue) find(x int) int {
+	for i := 0; i < len(*d); i++ {
+		if (*d)[i] == x {
 			return i
 		}
 	}
 	return -1
 }
 
-func (c *Cycle) insert(i int, x []int) {
-	i = i % (1 + len(*c))
-	newSlice := make([]int, i, len(*c)+len(x))
-	copy(newSlice, *c)
-	newSlice = append(newSlice, x...)
-	newSlice = append(newSlice, (*c)[i:]...)
-	*c = newSlice
+func (d *Dequeue) findFrom(x int, l int) int {
+	if l < 0 {
+		l = 0
+	}
+	for i := l; i < len(*d); i++ {
+		if (*d)[i] == x {
+			return i
+		}
+	}
+	return -1
 }
 
-func (d Day23) Calc() string {
-	cycle := newCycle(input.ReadInputFile(23))
-	return fmt.Sprintf("1: %v\n2: %v\n", d.simulate(*cycle), d.simulateBig(*cycle))
+func (d *Dequeue) insert(i int, x []int) {
+	*d = append(*d, make([]int, len(x))...)
+	//*d = append((*d)[:i+len(x)], (*d)[i:]...)
+	copy((*d)[i+len(x):], (*d)[i:])
+	copy((*d)[i:], x)
 }
 
-func (d *Day23) simulate(cycle Cycle) string {
-	var c = Cycle(make([]int, len(cycle)))
-	copy(c, cycle)
+func (day Day23) Calc() string {
+	cycle := newDequeue(input.ReadInputFile(23))
+	return fmt.Sprintf("1: %v\n2: %v\n", day.simulate(*cycle), day.simulateBig(*cycle))
+}
 
-	var current = 0
-	for move := 0; move < 10000; move++ {
-		currentValue := c.get(current)
-		fmt.Println("--", move+1, "--")
-		fmt.Println("cups:", c)
-		nextThree := c.cut(current+1, current+4)
-		fmt.Println("pick up:", nextThree)
-		fmt.Println("current", currentValue)
+func (day *Day23) simulate(dequeue Dequeue) string {
+	var d = Dequeue(make([]int, len(dequeue)))
+	copy(d, dequeue)
+
+	for move := 0; move < 100; move++ {
+		fmt.Println(move)
+		currentValue := d.Pop()
+
+		nextThree := []int{d.Pop(), d.Pop(), d.Pop()}
+
+		isInNextThree := func(x int) bool {
+			for _, n := range nextThree {
+				if n == x {
+					return true
+				}
+			}
+			return false
+		}
+
+		next := currentValue - 1
+
+		for isInNextThree(next) {
+			next--
+		}
 
 		designationIndex := -1
-		for next := currentValue - 1; designationIndex < 0; next-- {
-			if next > 0 {
-				designationIndex = c.find(next)
-			} else {
-				designationIndex = c.find(len(c) + next + 3)
-			}
-		}
-		fmt.Println("destination:", c.get(designationIndex))
 
-		c.insert(designationIndex+1, nextThree)
-		if designationIndex < current {
-			oldCurrent := current
-			current = current + 4
-			current %= len(c)
-
-			if len(c)-oldCurrent <= 3 {
-				current -= 4 - (len(c) - oldCurrent)
-			}
+		if next > 0 {
+			designationIndex = d.find(next)
 		} else {
-			current = current + 1
-			current %= len(c)
+			designationIndex = d.find(len(d) + next + 4)
 		}
+		d.insert(designationIndex+1, nextThree)
+
+		d.Append(currentValue)
 	}
 
 	sb := strings.Builder{}
-	for i := c.find(1) + 1; i < c.find(1)+len(c); i++ {
-		sb.WriteString(strconv.Itoa(c.get(i)))
+	for i := d.find(1) + 1; i < d.find(1)+len(d); i++ {
+		sb.WriteString(strconv.Itoa(d.get(i % len(d))))
 	}
 
 	return sb.String()
 }
 
-func (d *Day23) simulateBig(cycle Cycle) int {
-	return -1
-	var c = Cycle(make([]int, 1000000))
-	copy(c, cycle)
+func (day *Day23) simulateBig(cycle Dequeue) int {
+	var d = Dequeue(make([]int, len(cycle), 1000000))
+	copy(d, cycle)
 
-	var current = 0
+	for i := len(cycle); len(d) < 1000000; i++ {
+		d.Append(i + 1)
+	}
+
+	lastSeenAt := make(map[int]int)
+	for i, v := range d {
+		lastSeenAt[v] = i
+	}
+
+	offset := 0
+	t := time.Now()
+
 	for move := 0; move < 10000000; move++ {
-		//fmt.Println(move)
-		currentValue := c.get(current)
-		nextThree := c.cut(current+1, current+4)
-		nextMap := make(map[int]struct{})
-		for _, v := range nextThree {
-			nextMap[v] = struct{}{}
+		if move%10000 == 0 {
+			fmt.Println(move, len(d), len(lastSeenAt))
+			fmt.Println("Time: ", time.Since(t))
+			t = time.Now()
+
+		}
+		currentValue := d.Pop()
+
+		nextThree := []int{d.Pop(), d.Pop(), d.Pop()}
+
+		offset += 4
+
+		isInNextThree := func(x int) bool {
+			for _, n := range nextThree {
+				if n == x {
+					return true
+				}
+			}
+			return false
+		}
+
+		next := currentValue - 1
+
+		for isInNextThree(next) {
+			next--
 		}
 
 		designationIndex := -1
-		for next := currentValue - 1; designationIndex < 0; next-- {
-			if _, ok := nextMap[next]; !ok {
-				if next > 0 {
-					designationIndex = c.find(next)
-				} else {
-					designationIndex = c.find(len(c) + next + 3)
-				}
-			}
-		}
-		c.insert(designationIndex+1, nextThree)
-		//fmt.Println(move+2, ":")
-		//fmt.Println(c)
-		c.insert(designationIndex+1, nextThree)
-		if designationIndex < current {
-			oldCurrent := current
-			current = current + 4
-			current %= len(c)
 
-			if len(c)-oldCurrent <= 3 {
-				current -= 4 - (len(c) - oldCurrent)
-			}
+		if next > 0 {
+			designationIndex = d.findFrom(next, lastSeenAt[next]-offset)
 		} else {
-			current = current + 1
-			current %= len(c)
+			next = len(d) + next + 4
+			designationIndex = d.findFrom(next, lastSeenAt[next]-offset)
 		}
+		if move%10000 == 0 {
+			fmt.Println(next, offset, lastSeenAt[next], lastSeenAt[next]-offset, designationIndex)
+		}
+		d.insert(designationIndex+1, nextThree)
+		d.Append(currentValue)
+		lastSeenAt[currentValue] = len(d) - 1 + offset
+		for i, v := range nextThree {
+			lastSeenAt[v] = designationIndex + 1 + i + offset
+		}
+
 	}
 
-	pro := 1
-	for i := c.find(1) + 1; i < c.find(1)+3; i++ {
-		pro *= c[i]
+	for d.Peek() != 1 {
+		d.Pop()
 	}
+	d.Pop()
 
-	return pro
+	return d.Pop() * d.Pop()
 }
